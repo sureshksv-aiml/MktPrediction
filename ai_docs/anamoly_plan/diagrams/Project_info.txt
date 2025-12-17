@@ -1,0 +1,73 @@
+Website traffic anomaly assistant with ADK, BigQuery ML, Vertex AI, and Next.js
+
+This use case is built for a Google Hackathon: a multi-agent anomaly detection assistant that analyzes website traffic, explains spikes and dips, and lets logged‑in users save reports and their associated chat summaries under their accounts for retrieval anytime. It combines Google ADK for agent orchestration, BigQuery for scalable analytics and ML, Vertex AI for LLM reasoning, and Next.js for a polished web UI deployed on Google Cloud.
+
+Use case summary and goals
+
+Problem: Teams struggle to spot and explain anomalous traffic patterns quickly, correlate causes, and share findings.
+
+Solution: A multi-agent system that detects outliers with BigQuery ML, explains them in plain language, and saves curated reports plus chat summaries per user for later recall.
+
+Hackathon deliverables:
+
+Next.js app: Authenticated UI with chat, report views, and save/retrieve.
+
+ADK agents: Orchestrator, Data Agent (BigQuery tools), Reporting Agent, Persistence Agent.
+
+BigQuery ML: Outlier detection via ML.DETECT_ANOMALIES and timeseries baselines.
+
+Vertex AI: LLM reasoning for explanations and synthesis.
+
+Cloud deploy: GCP services (Cloud Run, BigQuery, Vertex AI, Supabase DB).
+
+System architecture
+
+Components
+
+User Interface (Next.js):
+
+Chat: Natural language requests (“Find unusual spikes this week”).
+
+Report view: Tables, charts, narrative insights.
+
+Save/Retrieve: Persist report plus chat summary under the user’s account.
+
+ADK Multi‑Agent backend (Cloud Run):
+
+Analysis Orchestrator (Sequential/ParallelAgent): Plans tasks, coordinates agents, handles retries.
+
+Data Agent (LLM + BigQuery tools): Builds SQL, runs BigQuery ML, returns structured results.
+
+Reporting Agent (LLM): Synthesis, root‑cause narratives, executive summary.
+
+Persistence Agent: Stores report payload and chat summary mapped to authenticated user.
+
+Data and ML:
+
+BigQuery: Website traffic table(s): sessions, pageviews, referrers, campaigns.
+
+BigQuery ML: Anomaly detection via ML.DETECT_ANOMALIES or timeseries forecasting residuals.
+
+Identity and storage:
+
+Auth: Google Identity / Supabase Auth  → user ID token passed to backend.
+
+Persistence: Supabase for saved reports and chat summaries.
+
+Object storage: Cloud Storage for static assets or large exports (optional).
+
+High-level flow
+
+After google oAUth the landing page will have sidebar and two pane layout. 1st pane is Report Analytics chat assistant and 2nd pane is Saved Reports pane.
+
+User query (Next.js): Authenticated user submits a request.
+
+Orchestration (ADK): Orchestrator decomposes tasks (data fetch → anomaly → synthesis).
+
+Data Agent: Executes BigQuery SQL/ML, returns anomalies with metrics (z‑scores, deviations).
+
+Reporting Agent: Explains anomalies, contextualizes with referrers/campaigns, produces a report.
+
+Persistence Agent: Saves report JSON + chat summary under user’s UID in supabase; supports retrieval.
+
+UI renders: Charts, tables, narrative; user can filter, save, or download.

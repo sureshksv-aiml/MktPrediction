@@ -1,0 +1,60 @@
+{
+  "name": "gcp-bq-reports",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Market Pulse - AI-powered volatility prediction platform with BigQuery and multi-agent analysis",
+  "scripts": {
+    "install": "npm run install:backend && npm run install:prediction-agent && npm run install:frontend",
+    "install:backend": "cd apps/market-signal-agent && uv sync --all-extras",
+    "install:frontend": "npm --prefix apps/web install --ignore-scripts",
+    "dev": "npm-run-all --parallel dev:api dev:frontend",
+    "dev:full": "npm-run-all --parallel dev:api dev:frontend",
+    "dev:backend": "cd apps/market-signal-agent && npx dotenv-cli -e .env.local -- uv run python app.py",
+    "dev:frontend": "npm --prefix apps/web run dev",
+    "dev:frontend:log": "npm --prefix apps/web run dev:frontend:log",
+    "dev:api": "cd apps/market-signal-agent && npx dotenv-cli -e .env.local -- uv run python scripts/run_adk_api.py",
+    "adk:web": "cd apps/market-signal-agent && npx dotenv-cli -e .env.local -- uv run adk web",
+    "adk:web:log": "cd apps/market-signal-agent && npx dotenv-cli -e .env.local -- uv run python scripts/adk_web_with_logging.py",
+    "adk:api:log": "cd apps/market-signal-agent && npx dotenv-cli -e .env.local -- uv run python scripts/run_adk_api.py",
+    "build": "npm run build:frontend",
+    "build:frontend": "npm --prefix apps/web run build",
+    "start": "npm run start:frontend",
+    "start:frontend": "npm --prefix apps/web run start",
+    "lint": "npm run lint:frontend",
+    "lint:frontend": "npm --prefix apps/web run lint",
+    "lint:backend": "cd apps/market-signal-agent && uv run ruff check",
+    "format": "npm --prefix apps/web run format",
+    "type-check": "npm run type-check:frontend",
+    "type-check:frontend": "npm --prefix apps/web run type-check",
+    "type-check:backend": "cd apps/market-signal-agent && uv run mypy .",
+    "env:pull:dev": "cd apps/web && npm run env:pull:dev",
+    "env:pull:prod": "cd apps/web && npm run env:pull:prod",
+    "db:generate": "npm --prefix apps/web run db:generate",
+    "db:generate:prod": "npm --prefix apps/web run db:generate:prod",
+    "db:generate:custom": "npm --prefix apps/web run db:generate:custom",
+    "db:generate:custom:prod": "npm --prefix apps/web run db:generate:custom:prod",
+    "db:migrate": "npm --prefix apps/web run db:migrate",
+    "db:migrate:prod": "npm --prefix apps/web run db:migrate:prod",
+    "db:rollback": "npm --prefix apps/web run db:rollback",
+    "db:rollback:prod": "npm --prefix apps/web run db:rollback:prod",
+    "db:status": "npm --prefix apps/web run db:status",
+    "db:status:prod": "npm --prefix apps/web run db:status:prod",
+    "storage:setup": "npm --prefix apps/web run storage:setup",
+    "deploy:adk": "cd apps/market-signal-agent && uv run python -c \"import subprocess; result=subprocess.run(['uv', 'export', '--no-hashes', '--no-header', '--no-dev', '--no-emit-project'], capture_output=True, text=True); lines=[l for l in result.stdout.splitlines() if l.strip() and not l.strip().startswith('#')]; open('requirements.txt', 'w').write(chr(10).join(lines))\" && uv run python scripts/agent_engine_app.py --env=prod",
+    "deploy:web": "cd apps/market-signal-agent && uv run python ../web/scripts/cloud_run_deploy.py --env prod",
+    "deploy:web:dev": "cd apps/market-signal-agent && uv run python ../web/scripts/cloud_run_deploy.py --env dev",
+    "deploy:cloudfunction": "cd apps/market-signal-agent && uv run python scripts/deploy_cloud_function.py",
+    "deploy:cloudfunction:dry": "cd apps/market-signal-agent && uv run python scripts/deploy_cloud_function.py --dry-run"
+  },
+  "devDependencies": {
+    "dotenv-cli": "^10.0.0",
+    "npm-run-all": "^4.1.5"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "workspaces": [
+    "apps/web"
+  ]
+}

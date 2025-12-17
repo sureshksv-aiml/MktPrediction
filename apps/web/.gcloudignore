@@ -1,0 +1,55 @@
+# Cloud Build ignore file for Next.js deployment
+# These files/folders are excluded from the upload to Cloud Build
+
+# Git
+.git
+.gitignore
+
+# Dependencies (will be installed during build)
+node_modules/
+
+# Build output (will be regenerated)
+.next/
+
+# Local environment files (sensitive - keep production env for build)
+.env.local
+.env.development
+.env.development.local
+# NOTE: .env.prod is NOT ignored - needed for production build
+# .env.prod
+
+# Documentation and non-essential files
+*.md
+README*
+CHANGELOG*
+LICENSE*
+
+# Test files
+tests/
+__tests__/
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
+coverage/
+.jest/
+
+# Development logs
+logs/
+
+# IDE/Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# TypeScript build info
+*.tsbuildinfo
+
+# Deployment scripts (not needed in container)
+scripts/cloud_run_deploy.py
