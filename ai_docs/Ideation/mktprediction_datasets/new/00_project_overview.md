@@ -220,44 +220,58 @@ market_signal_orchestrator (Root LlmAgent)
 ### Session State Flow
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────────────────┐
-│                              SESSION STATE FLOW                                          │
-├─────────────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                          │
-│  [PHASE 1: PARALLEL DATA FETCH]                                                         │
-│                                                                                          │
-│  ┌─────────────────────┐  ┌─────────────────────┐  ┌─────────────────────┐             │
-│  │  technical_agent    │  │ event_calendar_agent│  │ speech_signal_agent │             │
-│  │  ─────────────────  │  │  ─────────────────  │  │  ─────────────────  │             │
-│  │  Input:             │  │  Input:             │  │  Input:             │             │
-│  │  • market_30yr_v    │  │  • fed_comms_v      │  │  • speech_signals   │             │
-│  │  • index_data_v     │  │  • acquisitions     │  │    (BQ table)       │             │
-│  │                     │  │  • analyst_ratings  │  │                     │             │
-│  │  Output:            │  │  Output:            │  │  Output:            │             │
-│  │  technical_signals  │  │  event_calendar     │  │  speech_signals     │             │
-│  └──────────┬──────────┘  └──────────┬──────────┘  └──────────┬──────────┘             │
-│             │                        │                        │                         │
-│             └────────────────────────┼────────────────────────┘                         │
-│                                      ▼                                                  │
-│  [PHASE 2: SEQUENTIAL PROCESSING]                                                       │
-│                                      │                                                  │
-│             ┌────────────────────────┼────────────────────────┐                         │
-│             ▼                        ▼                        ▼                         │
-│  ┌─────────────────────┐  ┌─────────────────────┐  ┌─────────────────────┐             │
-│  │  synthesis_agent    │  │    alert_agent      │  │ persistence_agent   │             │
-│  │  ─────────────────  │  │  ─────────────────  │  │  ─────────────────  │             │
-│  │  Input (session):   │  │  Input (session):   │  │  Input (session):   │             │
-│  │  • technical_signals│  │  • technical_signals│  │  • volatility_      │             │
-│  │  • event_calendar   │  │  • volatility_      │  │    forecasts        │             │
-│  │  • speech_signals   │  │    forecasts        │  │  • alerts           │             │
-│  │                     │  │                     │  │                     │             │
-│  │  Output:            │  │  Output:            │  │  Output:            │             │
-│  │  volatility_        │  │  alerts             │  │  persistence_result │             │
-│  │  forecasts          │  │                     │  │  (writes to BQ)     │             │
-│  └─────────────────────┘  └─────────────────────┘  └─────────────────────┘             │
-│                                                                                          │
-└─────────────────────────────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                    SESSION STATE FLOW                                                │
+├─────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                                      │
+│  [PHASE 1: PARALLEL DATA FETCH]                                                                     │
+│                                                                                                      │
+│  ┌───────────────────────────┐  ┌───────────────────────────┐  ┌─────────────────────────────────┐  │
+│  │  technical_agent          │  │ event_calendar_agent      │  │ speech_signal_agent             │  │
+│  │  ───────────────────────  │  │  ───────────────────────  │  │  ─────────────────────────────  │  │
+│  │  Input:                   │  │  Input:                   │  │  Input:                         │  │
+│  │  • market_30yr_v          │  │  • fed_comms_v            │  │  • speech_signals (BQ table)    │  │
+│  │  • index_data_v           │  │  • acquisitions           │  │                                 │  │
+│  │                           │  │  • analyst_ratings        │  │                                 │  │
+│  │  Output:                  │  │  Output:                  │  │  Output:                        │  │
+│  │  technical_signals        │  │  event_calendar           │  │  speech_signals                 │  │
+│  │  (VIX level, regime,      │  │  (Fed meetings, M&A,      │  │  (Earnings call sentiment:      │  │
+│  │   z-score anomalies)      │  │   analyst ratings)        │  │   tone, guidance, risks)        │  │
+│  └─────────────┬─────────────┘  └─────────────┬─────────────┘  └───────────────┬─────────────────┘  │
+│                │                              │                                │                     │
+│                └──────────────────────────────┼────────────────────────────────┘                     │
+│                                               ▼                                                      │
+│  [PHASE 2: SEQUENTIAL PROCESSING]                                                                   │
+│                                               │                                                      │
+│                ┌──────────────────────────────┼──────────────────────────────┐                       │
+│                ▼                              ▼                              ▼                       │
+│  ┌───────────────────────────┐  ┌───────────────────────────┐  ┌───────────────────────────┐        │
+│  │  synthesis_agent          │  │    alert_agent            │  │ persistence_agent         │        │
+│  │  ───────────────────────  │  │  ───────────────────────  │  │  ───────────────────────  │        │
+│  │  Input (session):         │  │  Input (session):         │  │  Input (session):         │        │
+│  │  • technical_signals      │  │  • technical_signals      │  │  • volatility_forecasts   │        │
+│  │  • event_calendar         │  │  • volatility_forecasts   │  │  • alerts                 │        │
+│  │  • speech_signals         │  │                           │  │                           │        │
+│  │                           │  │                           │  │                           │        │
+│  │  Output:                  │  │  Output:                  │  │  Output:                  │        │
+│  │  volatility_forecasts     │  │  alerts                   │  │  persistence_result       │        │
+│  │  (1d/5d volatility        │  │  (VIX threshold checks,   │  │  (writes to BigQuery      │        │
+│  │   predictions)            │  │   generated alerts)       │  │   tables)                 │        │
+│  └───────────────────────────┘  └───────────────────────────┘  └───────────────────────────┘        │
+│                                                                                                      │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────┘
 ```
+
+### Agent Logic Summary
+
+| Agent | Input | Output | Logic (What It Does) |
+|-------|-------|--------|----------------------|
+| **technical_agent** | market_30yr_v, index_data_v | technical_signals (VIX level, regime, z-score anomalies) | **Step 1:** Query `market_30yr_v` to get the latest VIX value (e.g., 24.5). **Step 2:** Calculate historical mean (~19.2) and standard deviation (~7.8) from 30 years of VIX data. **Step 3:** Compute z-score = (current_vix - mean) / std_dev → e.g., (24.5 - 19.2) / 7.8 = +0.68. **Step 4:** Classify regime: z < -1 = "low", -1 to +1 = "normal", +1 to +2 = "elevated", > +2 = "extreme". **Step 5:** Query `index_data_v` for index prices, compute rolling z-scores to detect anomalies (e.g., SPX volume 2.3σ above average). |
+| **event_calendar_agent** | fed_comms_v, acquisitions, analyst_ratings | event_calendar (Fed meetings, M&A, analyst ratings) | **Step 1:** Query `fed_communications_v` for FOMC meeting dates and types (Minutes, Statements). **Step 2:** Query `acquisitions` for M&A announcements in the relevant time window. **Step 3:** Query `analyst_ratings` for recent upgrades/downgrades/price target changes. **Step 4:** Merge and sort all events by date into a unified timeline. **Step 5:** Flag high-impact events (FOMC decisions, major acquisitions, significant rating changes). |
+| **speech_signal_agent** | speech_signals (BQ table) | speech_signals (Earnings call sentiment: tone, guidance, risks) | **Step 1:** Query pre-processed `speech_signals` table (188 transcripts already analyzed by Gemini). **Step 2:** Retrieve sentiment scores: overall tone (bullish/neutral/bearish), forward guidance strength, and identified risk factors. **Step 3:** Filter for the most recent earnings calls from the 10 tracked companies (AAPL, NVDA, MSFT, etc.). **Step 4:** Aggregate sentiment trends across companies to identify sector-wide confidence shifts. |
+| **synthesis_agent** | technical_signals, event_calendar, speech_signals | volatility_forecasts (1d/5d predictions) | **Step 1:** Take current VIX level and regime classification from technical_signals. **Step 2:** Factor in upcoming events — if FOMC meeting in next 5 days, increase volatility estimate. **Step 3:** Incorporate speech sentiment — bearish earnings tone suggests higher volatility. **Step 4:** Apply weighted formula: `forecast = base_vix × (1 + event_impact + sentiment_adjustment)`. **Step 5:** Generate 1-day and 5-day predictions with confidence scores based on signal agreement. |
+| **alert_agent** | technical_signals, volatility_forecasts | alerts (VIX threshold checks, generated alerts) | **Step 1:** Check current VIX against thresholds: <15 (low), 15-20 (normal), 20-25 (elevated/info), 25-30 (high/warning), >30 (extreme/critical). **Step 2:** Check if forecasted VIX crosses a threshold boundary (e.g., current 24 → forecast 26 triggers warning). **Step 3:** Check z-score anomalies from technical_signals for outliers (>2σ triggers alert). **Step 4:** Generate alert objects with severity, message, and recommended action. |
+| **persistence_agent** | volatility_forecasts, alerts | persistence_result (writes to BigQuery) | **Step 1:** Format volatility_forecasts into BigQuery row schema (date, symbol, vix, regime, forecast_1d, forecast_5d, confidence). **Step 2:** Format alerts into schema (timestamp, severity, type, message, threshold, current_value). **Step 3:** Insert rows into `volatility_forecasts` and `alerts` output tables. **Step 4:** Return success/failure status with row counts. |
 
 ---
 
