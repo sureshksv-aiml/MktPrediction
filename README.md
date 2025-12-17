@@ -101,6 +101,31 @@
 └─────────────────────────────────────────────────────────────────────────────────┘
 ```
 
+<details>
+<summary><strong>Frontend Visuals</strong> (click to expand)</summary>
+
+### Landing Page
+<p align="center">
+  <img src="ai_docs/Ideation/mktprediction_datasets/diagrams/Landing.png" alt="Landing Page" width="800" />
+</p>
+
+### Sign In
+<p align="center">
+  <img src="ai_docs/Ideation/mktprediction_datasets/diagrams/Signin.png" alt="Sign In" width="800" />
+</p>
+
+### Dashboard
+<p align="center">
+  <img src="ai_docs/Ideation/mktprediction_datasets/diagrams/Dashboard.png" alt="Dashboard" width="800" />
+</p>
+
+### Preferences
+<p align="center">
+  <img src="ai_docs/Ideation/mktprediction_datasets/diagrams/Preferences.png" alt="Preferences" width="800" />
+</p>
+
+</details>
+
 ## Agent Hierarchy & Data Flow
 
 ### Orchestration Agents
