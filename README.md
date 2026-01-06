@@ -18,7 +18,25 @@
 ---
 
 </div>
+<div align="center">
 
+# Usecase Details
+Financial institutions and investors struggle to anticipate market volatility around major events (i.e. earnings announcements, Fed Reserve decisions, macroeconomic releases, etc.)
+
+Existing predictive tools often rely on static models or narrow datasets, failing to capture dynamic, multi-factor relationships. This results in reactive strategies, missed alpha opportunities, and heightened risk exposure in scenarios.
+
+Market reactions are complex and influenced by multiple factors: news sentiment, macro indicators, and liquidity conditions. where decisions need to be made in milliseconds; latency kills opportunity.
+
+Develop a Market Activity Prediction Agent that:
+
+  Analyzes historical market data to detect patterns and anomalies.
+  Models event impacts by correlating financial events (e.g., earnings releases, Fed announcements) with historical market reactions.
+  Forecasts volatility (short-term and long-term) using statistical and machine learning models.
+  Simulates scenarios for upcoming events based on historical behavior.
+  Provides real-time alerts for predicted high-volatility periods or significant market shifts.
+  Contains predictions should include confidence scores and rationale for transparency.
+  Provides API-ready outputs for trading platforms and risk dashboards would be a PLUS.
+</div>
 ## Overview
 
 **Market Volatility Prediction Agent** is a production-ready multi-agent AI system that forecasts market volatility using multiple data sources:
