@@ -524,7 +524,7 @@ apps/
 
 | Component | URL / Location |
 |-----------|----------------|
-| **Frontend** | https://gcp-bq-reports-web-prod-lnl6duvora-uc.a.run.app/ |
+| **Frontend** | https://gcp-bq-reports-web-prod-819963275930.us-central1.run.app/ |
 | **Agent** | Cloud Run (us-central1) |
 | **Region** | us-central1 |
 
